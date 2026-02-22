@@ -147,7 +147,7 @@ ${details}
       }
 
       const responseStream = await ai.models.generateContentStream({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-3-flash-preview',
         contents: { parts },
         config: {
           systemInstruction: `أنت محرر أكاديمي ذكي تعمل لصالح قسم الإعلام والاتصال الحكومي في الجامعة التقنية الجنوبية بالبصرة.
@@ -215,7 +215,13 @@ ${details}
 
     } catch (error: any) {
       console.error('Error generating content:', error);
-      setGeneratedContent(error?.message || 'حدث خطأ أثناء صياغة المحتوى. يرجى المحاولة مرة أخرى.');
+      
+      const errorMessage = error?.message || '';
+      if (errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED') || errorMessage.includes('quota')) {
+        setGeneratedContent('عذراً، لقد تجاوزت الحد المسموح به للاستخدام المجاني (Quota Exceeded). يرجى الانتظار قليلاً والمحاولة مرة أخرى، أو التحقق من إعدادات حساب Google AI Studio الخاص بك.');
+      } else {
+        setGeneratedContent('حدث خطأ أثناء صياغة المحتوى. يرجى المحاولة مرة أخرى.\n\nتفاصيل الخطأ: ' + errorMessage);
+      }
     } finally {
       setIsGenerating(false);
     }
