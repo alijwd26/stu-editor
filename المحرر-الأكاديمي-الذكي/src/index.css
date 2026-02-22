@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Dubai", "Cairo", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.prose {
+  text-align: right;
+}
