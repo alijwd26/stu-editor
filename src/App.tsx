@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
-import { Mic, Image as ImageIcon, GraduationCap, Loader2, X, ChevronDown, FileText } from 'lucide-react';
+import { Mic, Image as ImageIcon, GraduationCap, Loader2, X, ChevronDown, FileText, Copy, Check } from 'lucide-react';
 
 // Initialize Gemini safely
 let ai: any = null;
@@ -38,8 +38,16 @@ export default function App() {
   
   const [isRecordingTopic, setIsRecordingTopic] = useState(false);
   const [isRecordingDetails, setIsRecordingDetails] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCopy = () => {
+    if (!generatedContent) return;
+    navigator.clipboard.writeText(generatedContent);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const startRecording = (field: 'topic' | 'details') => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -315,7 +323,7 @@ ${details}
                   <label className="block text-sm font-semibold text-gray-700 mb-2">التاريخ</label>
                   <input 
                     type="date" 
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B0000] focus:border-transparent outline-none transition-all" 
+                    className="w-full p-3 min-h-[50px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B0000] focus:border-transparent outline-none transition-all" 
                     value={date} 
                     onChange={e => setDate(e.target.value)} 
                   />
@@ -323,7 +331,7 @@ ${details}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">نمط المخرج</label>
                   <select 
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B0000] focus:border-transparent outline-none transition-all bg-white" 
+                    className="w-full p-3 min-h-[50px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B0000] focus:border-transparent outline-none transition-all bg-white" 
                     value={style} 
                     onChange={e => setStyle(e.target.value)}
                   >
@@ -458,9 +466,21 @@ ${details}
         {/* Left Panel (Output) */}
         <div className="space-y-6 h-full">
           <Card className="h-full min-h-[600px] flex flex-col">
-            <div className="p-4 border-b border-gray-200 bg-gray-50 font-bold text-gray-800 flex items-center gap-2">
-              <FileText size={20} className="text-[#8B0000]" />
-              مسودة الخبر
+            <div className="p-4 border-b border-gray-200 bg-gray-50 font-bold text-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText size={20} className="text-[#8B0000]" />
+                مسودة الخبر
+              </div>
+              {generatedContent && !isGenerating && (
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+                  title="نسخ النص"
+                >
+                  {isCopied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+                  <span dir="rtl">{isCopied ? 'تم النسخ!' : 'نسخ النص'}</span>
+                </button>
+              )}
             </div>
             <div className="p-6 flex-1 overflow-auto bg-white">
               {!generatedContent && !isGenerating ? (
